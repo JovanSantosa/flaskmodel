@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Prediksi Kesegaran Ikan</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      .result {
+        margin-top: 1em;
+        padding: 1em;
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload Gambar Mata Ikan untuk Prediksi</h1>
+    <form
+      id="upload-form"
+      action="/predict"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <input type="file" name="file" accept="image/*" required />
+      <button type="submit">Prediksi</button>
+    </form>
+    <div id="result-container" class="result" style="display: none">
+      <h2>Hasil Prediksi:</h2>
+      <p><strong>Kelas:</strong> <span id="prediction"></span></p>
+      <p>
+        <strong>Keyakinan (Confidence):</strong> <span id="confidence"></span>
+      </p>
+    </div>
+
+    <script>
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const resultContainer = document.getElementById("result-container");
+          const predictionSpan = document.getElementById("prediction");
+          const confidenceSpan = document.getElementById("confidence");
+
+          resultContainer.style.display = "none";
+
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            predictionSpan.textContent = result.prediction;
+            confidenceSpan.textContent =
+              (result.confidence * 100).toFixed(2) + "%";
+          } else {
+            predictionSpan.textContent = "Error: " + result.error;
+            confidenceSpan.textContent = "-";
+          }
+          resultContainer.style.display = "block";
+        });
+    </script>
+  </body>
+</html>
